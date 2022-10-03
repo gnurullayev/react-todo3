@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function FormList({addPost,clearList}) {
+function FormList({addPost,clearList,searchTodos,addTodoError}) {
     const [value,setValue] = useState("");
     const [isValid, setValid] = useState(true)
 
@@ -37,9 +37,19 @@ function FormList({addPost,clearList}) {
                   style = {{borderColor: isValid ? "green" : "red" }}
                   />
                   <span className={`text-danger ${isValid ? "d-none" : "d-block"}` }>Inputga malumot kiriting</span>
+                  <span className={`text-danger ${addTodoError === "bad" ? "d-block" : "d-none"}` }>Listda bunday malumot bor</span>
                 </div>
 
-                <div className="col-12 col-md-3">        
+                <div className="col-12 col-md-6">
+                  <input 
+                  className="js-input form-control" 
+                  type="text" 
+                  placeholder="Search..."
+                  onChange={e => searchTodos(e.target.value)}
+                  />
+                </div>
+
+                <div className="col-12 col-md-6">        
                   <button 
                   type='submit'
                   className="btn btn-info w-100" 
@@ -49,7 +59,7 @@ function FormList({addPost,clearList}) {
                   </button>
                 </div>
 
-                <div className="col-12 col-md-3">        
+                <div className="col-12 col-md-6">        
                   <button 
                   type='reset'
                   className="btn btn-danger w-100" 

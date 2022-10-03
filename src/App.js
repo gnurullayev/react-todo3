@@ -1,83 +1,33 @@
-import { useRef, useState } from "react";
+import { useReducer} from "react";
 import EditForm from "./components/EditForm";
 import FormList from "./components/FormList";
 import TodoList from "./components/TodoList";
+import { reducer } from "./redux/reucer";
+import {addPost,clearList,deleteTodo,complateHandler,showModalForm,notShowModalForm,editTodo,searchTodoItem} from"./redux/actions"
 
-const initalState = () => {
-  const state = JSON.parse(localStorage.getItem("list")) ? JSON.parse(localStorage.getItem("list")) : []
-  return state
+
+const initalState = {
+  todos: JSON.parse(localStorage.getItem("list")) ? JSON.parse(localStorage.getItem("list")) : [],
+  searchTodo: JSON.parse(localStorage.getItem("list")) ? JSON.parse(localStorage.getItem("list")) : [],
+  isModalShow: false,
+  todoId: null,
+  addTodoError:"good",
 }
 
 
 function App() {
-  const [todos, setTodos] = useState(initalState())
-  const [isModalShow, setModalShow] = useState(false)
-  const idRef = useRef(null)
 
-  const addLocolStorage = (el) => {
-    localStorage.setItem("list", JSON.stringify(el))
-  }
+  const [{isModalShow,searchTodo,addTodoError}, dispatch] = useReducer(reducer,initalState)
   
-  const addPost = (obj) => {
-    setTodos([...todos, obj])
-    addLocolStorage ([...todos, obj])
-  }
-
-  const clearList = () => {
-    setTodos([])
-    addLocolStorage ([])
-  }
-
-  const deleteItem = (id) => {
-    const newTodo = todos.filter(el => el.id !== id)
-    setTodos(newTodo)
-    addLocolStorage (newTodo)
-  }
-
-  const compateHanler = (id) => {
-    const newArr = todos.map(el => {
-      if (el.id === id){
-        return {...el, complate: !el.complate, }
-      }
-
-      return el
-    })
-
-    setTodos(newArr)
-    addLocolStorage (newArr)
-  }
-
-  const ShowEditForm = (id) => {
-    setModalShow(true)
-    idRef.current = id
-  }
-
-  const editTodo = (value) => {
-    setModalShow(false)
-
-    const newArr = todos.map(el => {
-      if(el.id === idRef.current) {
-        return {...el, label: value}
-      }
-      return el
-    })
-
-    setTodos(newArr)
-    addLocolStorage (newArr)
-  }
-
-  const notShowEditForm = () => {
-    setModalShow(false)
-  }
-
-  const ShowEditFormChild = (evt) => {
-    evt.stopPropagation()
-    setModalShow(true)
-  }
-
-
-
-  // if(isModalShow) return 
+  const createPost = (obj) => dispatch(addPost(obj));
+  const clearTodos = () => dispatch(clearList());
+  const deleteItem = (id) => dispatch(deleteTodo(id));
+  const complateHanler = (id) => dispatch(complateHandler(id));
+  const ShowEditForm = (id) => dispatch(showModalForm(id));
+  const editTodos = (value) => dispatch(editTodo(value));
+  const notShowEditForm = () => dispatch(notShowModalForm());
+  const searchTodos = (value) => dispatch(searchTodoItem(value));
+  
 
   return (
     <>
@@ -89,8 +39,7 @@ function App() {
             ?(
               <EditForm 
               notShowEditForm = {notShowEditForm}
-              ShowEditFormChild  = {ShowEditFormChild }
-              editTodo = {editTodo} 
+              editTodo = {editTodos} 
               />
             )
             :
@@ -99,11 +48,11 @@ function App() {
 
           <div className="row justify-content-center justify-content-md-between gy-4">
             <div className="col-md-6 ">
-              <FormList addPost = {addPost} clearList ={clearList}/>
+              <FormList addPost = {createPost} clearList ={clearTodos} searchTodos = {searchTodos} addTodoError = {addTodoError}/>
             </div>
 
             <div className="col-md-6">
-              <TodoList todos = {todos} deletTodo = {deleteItem} compateHanler = {compateHanler} ShowEditForm ={ShowEditForm}/>
+              <TodoList todos = {searchTodo} deletTodo = {deleteItem} compateHanler = {complateHanler} ShowEditForm ={ShowEditForm}/>
             </div>
           </div>
         </div>
